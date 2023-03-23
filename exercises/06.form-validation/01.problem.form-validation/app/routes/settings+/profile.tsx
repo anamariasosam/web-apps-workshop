@@ -3,6 +3,7 @@ import {
 	Form,
 	Link,
 	Outlet,
+	useActionData,
 	useFetcher,
 	useFormAction,
 	useLoaderData,
@@ -77,31 +78,28 @@ export async function action({ request }: DataFunctionArgs) {
 	invariant(typeof zip === 'string', 'zip must be a string')
 	invariant(typeof country === 'string', 'country must be a string')
 
-	// 🐨 create the errors object
-	// 🦺💰 Here's the type:
-	// type Errors = {
-	// 	formErrors: Array<string>
-	// 	fieldErrors: Record<string, Array<string> | undefined>
-	// }
+	type Errors = {
+		formErrors: Array<string>
+		fieldErrors: Record<string, Array<string> | undefined>
+	}
+	const errors: Errors = {
+		formErrors: [],
+		fieldErrors: {},
+	}
 
-	// 🐨 validate the name is 1 character or more
-	// if it is not, then add an error to the errors object for the field 'name'
+	if (name.length < 1) {
+		errors.fieldErrors.name = ['Must be at least 1 character']
+	}
+	if (username.length < 3) {
+		errors.fieldErrors.username = ['Must be at least 3 characters']
+	}
 
-	// 🐨 validate the username is 3 character or more
-	// if it is not, then add an error to the errors object for the field 'username'
-
-	// 🦉 If you'd like to validate all the fields be my guest, but I suggest you
-	// finish the rest of the exercise first. We will be doing password validation
-	// in the next step.
-
-	// 🐨 if there are any errors, then return a 400 status code and the errors as json
-	// 💰 it's helpful to add a discriminant property to the errors object so you can
-	// check for it in the UI to know if you should show the errors or not.
-	// We used the property `status: 'error'` in our solution and the errors were
-	// simply set as the errors property on the response json object.
-	// 🦺 it can also be helpful to add "as const" after the object literal so that
-	// the "status" property in the UI can be narrowed to the string literal "error"
-	// rather than just a generic string.
+	if (
+		errors.formErrors.length ||
+		Object.values(errors.fieldErrors).some(errors => errors?.length)
+	) {
+		return json({ status: 'error', errors } as const, { status: 400 })
+	}
 
 	const updatedUser = await prisma.user.update({
 		select: { username: true },
@@ -145,13 +143,14 @@ function usePreviousValue<Value>(value: Value): Value {
 
 export default function EditUserProfile() {
 	const data = useLoaderData<typeof loader>()
-	// 🐨 get the form errors from useActionData
+	const actionData = useActionData<typeof action>()
 	const navigation = useNavigation()
 	const formAction = useFormAction()
 	const createHostFetcher = useFetcher<typeof createHost.action>()
 	const createRenterFetcher = useFetcher<typeof createRenter.action>()
 
-	// 🐨 get the fieldErrors from the actionData (default them to an empty object)
+	const fieldErrors =
+		actionData?.status === 'error' ? actionData.errors.fieldErrors : {}
 
 	const hostBioTextareaRef = useRef<HTMLTextAreaElement>(null)
 	const renterBioTextareaRef = useRef<HTMLTextAreaElement>(null)
@@ -214,11 +213,10 @@ export default function EditUserProfile() {
 							inputProps={{
 								name: 'username',
 								defaultValue: data.user.username,
-								// 🐨 add a minLength prop of 3
-								// 🐨 add a required prop of true
+								minLength: 3,
+								required: true,
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the username field errors
+							errors={fieldErrors.username}
 						/>
 						<Field
 							className="col-span-3"
@@ -226,10 +224,9 @@ export default function EditUserProfile() {
 							inputProps={{
 								name: 'name',
 								defaultValue: data.user.name ?? '',
-								// 🐨 add a minLength prop of 1
+								minLength: 1,
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the name field errors
+							errors={fieldErrors.name}
 						/>
 						<Field
 							className="col-span-3"
@@ -240,8 +237,7 @@ export default function EditUserProfile() {
 								// TODO: support changing your email address
 								disabled: true,
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the email field errors
+							errors={fieldErrors.email}
 						/>
 						<Field
 							className="col-span-3"
@@ -250,8 +246,7 @@ export default function EditUserProfile() {
 								name: 'phone',
 								defaultValue: data.user.contactInfo?.phone ?? '',
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the phone field errors
+							errors={fieldErrors.phone}
 						/>
 						<Field
 							className="col-span-3"
@@ -260,8 +255,7 @@ export default function EditUserProfile() {
 								name: 'address',
 								defaultValue: data.user.contactInfo?.address ?? '',
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the address field errors
+							errors={fieldErrors.address}
 						/>
 						<Field
 							className="col-span-3"
@@ -270,8 +264,7 @@ export default function EditUserProfile() {
 								name: 'city',
 								defaultValue: data.user.contactInfo?.city ?? '',
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the city field errors
+							errors={fieldErrors.city}
 						/>
 						<Field
 							className="col-span-2"
@@ -280,8 +273,7 @@ export default function EditUserProfile() {
 								name: 'state',
 								defaultValue: data.user.contactInfo?.state ?? '',
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the state field errors
+							errors={fieldErrors.state}
 						/>
 						<Field
 							className="col-span-2"
@@ -290,8 +282,7 @@ export default function EditUserProfile() {
 								name: 'zip',
 								defaultValue: data.user.contactInfo?.zip ?? '',
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the zip field errors
+							errors={fieldErrors.zip}
 						/>
 						<Field
 							className="col-span-2"
@@ -300,8 +291,7 @@ export default function EditUserProfile() {
 								name: 'country',
 								defaultValue: data.user.contactInfo?.country ?? '',
 							}}
-							// 🐨 add an errors prop to the Field component
-							// and assign it to the country field errors
+							errors={fieldErrors.country}
 						/>
 
 						<div className="relative col-span-3">
@@ -318,8 +308,7 @@ export default function EditUserProfile() {
 									disabled: !data.user.host,
 									ref: hostBioTextareaRef,
 								}}
-								// 🐨 add an errors prop to the Field component
-								// and assign it to the hostBio field errors
+								errors={fieldErrors.hostBio}
 							/>
 							{data.user.host ? null : (
 								<div className="absolute inset-0 z-20 flex items-center justify-center">
@@ -366,8 +355,7 @@ export default function EditUserProfile() {
 									disabled: !data.user.renter,
 									ref: renterBioTextareaRef,
 								}}
-								// 🐨 add an errors prop to the Field component
-								// and assign it to the renterBio field errors
+								errors={fieldErrors.renterBio}
 							/>
 							{data.user.renter ? null : (
 								<div className="absolute inset-0 z-20 flex items-center justify-center">
@@ -413,8 +401,7 @@ export default function EditUserProfile() {
 										type: 'password',
 										autoComplete: 'current-password',
 									}}
-									// 🐨 add an errors prop to the Field component
-									// and assign it to the currentPassword field errors
+									errors={fieldErrors.currentPassword}
 								/>
 								<Field
 									className="flex-1"
@@ -426,15 +413,15 @@ export default function EditUserProfile() {
 										type: 'password',
 										autoComplete: 'new-password',
 									}}
-									// 🐨 add an errors prop to the Field component
-									// and assign it to the newPassword field errors
+									errors={fieldErrors.newPassword}
 								/>
 							</div>
 						</fieldset>
 					</div>
 
-					{/* 🐨 render the formErrors here */}
-					{/* 💰 You can use the <ErrorList /> component */}
+					{actionData?.status === 'error' && actionData.errors.formErrors ? (
+						<ErrorList errors={actionData.errors.formErrors} />
+					) : null}
 
 					<div className="mt-3 flex justify-center">
 						<Button
@@ -442,9 +429,7 @@ export default function EditUserProfile() {
 							size="md-wide"
 							variant="primary"
 							disabled={isSubmitting}
-							// 🐨 replace 'idle' with actionData?.status ?? 'idle'
-							// so the status can be either "pending", "error", or "idle"
-							status={isSubmitting ? 'pending' : 'idle'}
+							status={isSubmitting ? 'pending' : actionData?.status ?? 'idle'}
 						>
 							Save changes
 						</Button>

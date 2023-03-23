@@ -18,6 +18,7 @@ import {
 	authenticator,
 	getPasswordHash,
 	requireUserId,
+	verifyLogin,
 } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import { Button, ErrorList, Field, TextareaField } from '~/utils/forms'
@@ -60,6 +61,7 @@ export async function action({ request }: DataFunctionArgs) {
 		name,
 		username,
 		newPassword,
+		currentPassword,
 		renterBio,
 		hostBio,
 		phone,
@@ -87,19 +89,30 @@ export async function action({ request }: DataFunctionArgs) {
 		fieldErrors: {},
 	}
 
-	// 🦉 if a newPassword field is provided, then we're going to need to validate
-	// that the currentPassword is provided and that it matches the user's current
-	// password.
-	// 🐨 check that the newPassword is provided, if it is, do the following:
-	//   🐨 check that currentPassword is a string (use invariant like the other fields)
-	//   🐨 if the currentPassword is an empty string, then add an error on the currentPassword field
-	//   saying it is required.
-	//   🐨 if the currentPassword is not an empty string, find the currently logged in user
-	//   🐨 if there is no currently logged in user, then log them out like we do in the loader
-	//   🐨 confirm the currentPassword matches the user's password using the `verifyPassword`
-	//   utility from `~/utils/auth.server`
-	//   🐨 if it is not valid, then add an error on the currentPassword field saying it is invalid.
-	//   🐨 finally, add a newPassword error if it is not at least 8 characters long
+	if (newPassword) {
+		invariant(
+			typeof currentPassword === 'string',
+			'currentPassword must be a string',
+		)
+		if (currentPassword) {
+			const currentUser = await prisma.user.findUnique({
+				where: { id: userId },
+				select: { username: true },
+			})
+			if (!currentUser) {
+				throw await authenticator.logout(request, { redirectTo: '/' })
+			}
+			const valid = await verifyLogin(currentUser.username, currentPassword)
+			if (!valid) {
+				errors.fieldErrors.currentPassword = ['Incorrect']
+			}
+		} else {
+			errors.fieldErrors.currentPassword = ['Required']
+		}
+		if (newPassword.length < 8) {
+			errors.fieldErrors.newPassword = ['Must be at least 8 characters']
+		}
+	}
 
 	if (name.length < 1) {
 		errors.fieldErrors.name = ['Must be at least 1 character']
