@@ -4,10 +4,11 @@ import clsx from 'clsx'
 import { useRef, useState } from 'react'
 import { Spacer } from '~/components/spacer'
 import { ButtonLink } from '~/utils/forms'
-// 🐨 import the ./index.css file to get the indexStylesheetUrl
+import indexStylesheetUrl from './index.css'
 
-// 🐨 export a links function and add a link to the indexStylesheetUrl here
-// 🦺 Don't forget the LinksFunction type!
+export const links = () => {
+	return [{ rel: 'stylesheet', href: indexStylesheetUrl }]
+}
 
 export default function Index() {
 	return (

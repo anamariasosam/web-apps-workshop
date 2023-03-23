@@ -1,5 +1,5 @@
 import { KCDShopIFrameSync } from '@kentcdodds/workshop-app/iframe-sync'
-// 🐨 bring in the { cssBundleHref } from @remix-run/css-bundle
+import { cssBundleHref } from '@remix-run/css-bundle'
 import { type LinksFunction } from '@remix-run/node'
 import {
 	Link,
@@ -14,6 +14,7 @@ import { useId, useState } from 'react'
 import appStylesheetUrl from './styles/app.css'
 import tailwindStylesheetUrl from './styles/tailwind.css'
 import { ButtonLink } from './utils/forms'
+import { typedBoolean } from './utils/misc'
 import { generateStarsSvg } from './utils/starfield.server'
 
 export const links: LinksFunction = () => {
@@ -21,11 +22,8 @@ export const links: LinksFunction = () => {
 		{ rel: 'stylesheet', href: '/fonts/nunito-sans/font.css' },
 		{ rel: 'stylesheet', href: tailwindStylesheetUrl },
 		{ rel: 'stylesheet', href: appStylesheetUrl },
-		// 🐨 Add a link to cssBundleHref here
-		// 🦺 cssBundleHref could possibly be undefined, so you'll want to handle that
-	]
-	// 💰 I used .filter on the array to remove undefined values, but TypeScript
-	// isn't satisfied with that, so checkout the typedBoolean utility in ./utils/misc.ts
+		cssBundleHref ? { rel: 'stylesheet', href: cssBundleHref } : null,
+	].filter(typedBoolean)
 }
 
 export default function App() {
