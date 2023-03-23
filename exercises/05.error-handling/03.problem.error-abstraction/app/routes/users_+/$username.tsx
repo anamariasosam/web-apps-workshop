@@ -11,6 +11,7 @@ import {
 } from '@remix-run/react'
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { getUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import { Button } from '~/utils/forms'
@@ -85,25 +86,13 @@ export default function UserRoute() {
 }
 
 export function ErrorBoundary() {
-	// 💣 Delete the contents of this ErrorBoundary component
-
-	// 🐨 Instead, use GeneralErrorBoundary and specify the
-	// statusHandlers to handle 404s
-	// 💰 something like:
-	// 404: ({ params }) => <p>No user with the username "{params.username}" exists</p>
-	const error = useRouteError()
-	const params = useParams()
-	console.error(error)
-
-	let errorMessage = <p>Oh no, something went wrong. Sorry about that.</p>
-
-	if (isRouteErrorResponse(error) && error.status === 404) {
-		errorMessage = <p>No user with the username "{params.username}" exists</p>
-	}
-
 	return (
-		<div className="container mx-auto flex items-center justify-center p-20 text-h2 text-accent-red">
-			{errorMessage}
-		</div>
+		<GeneralErrorBoundary
+			statusHandlers={{
+				404: ({ params }) => (
+					<p>No user with the username "{params.username}" exists</p>
+				),
+			}}
+		/>
 	)
 }

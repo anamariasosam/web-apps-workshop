@@ -1,10 +1,12 @@
 import { json, type DataFunctionArgs } from '@remix-run/node'
 import {
 	Form,
+	isRouteErrorResponse,
 	NavLink,
 	Outlet,
 	useLoaderData,
 	useMatches,
+	useRouteError,
 } from '@remix-run/react'
 import clsx from 'clsx'
 import invariant from 'tiny-invariant'
@@ -83,3 +85,16 @@ export default function UserRoute() {
 
 // 🐨 export an ErrorBoundary component that renders an error message
 // 💰 do the /settings/profile route first, because that will be very similar to this one.
+export function ErrorBoundary() {
+	const error = useRouteError()
+
+	if (isRouteErrorResponse(error)) {
+		if (error.status === 404) {
+			return <p>Not Found</p>
+		}
+		if (error.status === 401) {
+			return <p>Unauthorized</p>
+		}
+	}
+	return <p>Something went wrong</p>
+}

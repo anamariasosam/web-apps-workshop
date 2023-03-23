@@ -1,6 +1,7 @@
 import { json, type DataFunctionArgs } from '@remix-run/node'
 import { useLoaderData } from '@remix-run/react'
 import invariant from 'tiny-invariant'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { getUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import { useOptionalUser } from '~/utils/misc'
@@ -122,7 +123,14 @@ export default function RenterUser() {
 	)
 }
 
-// 🐨 export an ErrorBoundary that uses GeneralErrorBoundary and specify the
-// statusHandlers to handle 404s
-// 💰 something like:
-// 404: ({ params }) => <p>{params.username} does not have a renter profile</p>
+export function ErrorBoundary() {
+	return (
+		<GeneralErrorBoundary
+			statusHandlers={{
+				404: ({ params }) => (
+					<p>{params.username} does not have a renter profile</p>
+				),
+			}}
+		/>
+	)
+}

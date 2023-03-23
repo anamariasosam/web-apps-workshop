@@ -1,6 +1,7 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { Form, Link, useLoaderData } from '@remix-run/react'
 import invariant from 'tiny-invariant'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { Spacer } from '~/components/spacer'
 import { prisma } from '~/utils/db.server'
 import { Button } from '~/utils/forms'
@@ -71,7 +72,14 @@ export default function UsernameIndex() {
 	)
 }
 
-// 🐨 export an ErrorBoundary that uses GeneralErrorBoundary and specify the
-// statusHandlers to handle 404s
-// 💰 something like:
-// 404: ({ params }) => <p>No user with the username "{params.username}" exists</p>
+export function ErrorBoundary() {
+	return (
+		<GeneralErrorBoundary
+			statusHandlers={{
+				404: ({ params }) => (
+					<p>No user with the username "{params.username}" exists</p>
+				),
+			}}
+		/>
+	)
+}

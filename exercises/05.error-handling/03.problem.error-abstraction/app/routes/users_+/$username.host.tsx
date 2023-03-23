@@ -2,6 +2,7 @@ import * as Separator from '@radix-ui/react-separator'
 import { json, type DataFunctionArgs } from '@remix-run/node'
 import { Link, useLoaderData } from '@remix-run/react'
 import invariant from 'tiny-invariant'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
 import { StarRatingDisplay } from '~/components/star-rating-display'
 import { prisma } from '~/utils/db.server'
 import { ButtonLink } from '~/utils/forms'
@@ -237,7 +238,14 @@ export default function HostUser() {
 	)
 }
 
-// 🐨 export an ErrorBoundary that uses GeneralErrorBoundary and specify the
-// statusHandlers to handle 404s
-// 💰 something like:
-// 404: ({ params }) => <p>{params.username} does not have a host profile</p>
+export function ErrorBoundary() {
+	return (
+		<GeneralErrorBoundary
+			statusHandlers={{
+				404: ({ params }) => (
+					<p>{params.username} does not have a host profile</p>
+				),
+			}}
+		/>
+	)
+}

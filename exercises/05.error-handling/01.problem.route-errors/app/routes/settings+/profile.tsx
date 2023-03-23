@@ -7,6 +7,7 @@ import {
 	useFormAction,
 	useLoaderData,
 	useNavigation,
+	useRouteError,
 } from '@remix-run/react'
 import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
@@ -411,6 +412,12 @@ export default function EditUserProfile() {
 }
 
 // 🐨 export an ErrorBoundary here
-// 🐨 get the error from useRouteError()
-// 💰 If you'd like it to look nice, you can use this class name:
-// className="container mx-auto flex items-center justify-center p-20 text-h2 text-accent-red"
+export function ErrorBoundary() {
+	const error = useRouteError()
+	console.error(error)
+	return (
+		<div className="container mx-auto flex items-center justify-center p-20 text-h2 text-accent-red">
+			<p>Oh no, something went wrong. Sorry about that.</p>
+		</div>
+	)
+}

@@ -1,10 +1,12 @@
 import { json, type DataFunctionArgs } from '@remix-run/node'
 import {
 	Form,
+	isRouteErrorResponse,
 	NavLink,
 	Outlet,
 	useLoaderData,
 	useMatches,
+	useParams,
 	useRouteError,
 } from '@remix-run/react'
 import clsx from 'clsx'
@@ -84,18 +86,14 @@ export default function UserRoute() {
 
 export function ErrorBoundary() {
 	const error = useRouteError()
-	// 🐨 get the params so we can display the username that is causing the error
-	console.error(error)
+	const params = useParams()
 
-	// 🐨 create the error message that will be displayed to the user
-	// you can default it to the existing error message we have below.
-
-	// 🐨 if the error is a 404 Response error, then display a different message
-	// that explains no user by the username given was found.
+	if (isRouteErrorResponse(error) && error.status === 404) {
+		return <p>No user with the username "{params.username}" exists</p>
+	}
 
 	return (
 		<div className="container mx-auto flex items-center justify-center p-20 text-h2 text-accent-red">
-			{/* 🐨 display the error message here */}
 			<p>Oh no, something went wrong. Sorry about that.</p>
 		</div>
 	)

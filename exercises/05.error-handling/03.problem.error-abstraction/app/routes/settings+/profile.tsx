@@ -11,6 +11,7 @@ import {
 } from '@remix-run/react'
 import { useEffect, useRef } from 'react'
 import invariant from 'tiny-invariant'
+import { GeneralErrorBoundary } from '~/components/error-boundary'
 import * as createHost from '~/routes/resources+/create-host'
 import * as createRenter from '~/routes/resources+/create-renter'
 import {
@@ -405,15 +406,5 @@ export default function EditUserProfile() {
 }
 
 export function ErrorBoundary() {
-	// This error boundary looks a lot like the GeneralErrorBoundary...
-	// 💣 Delete the contents of this ErrorBoundary
-	// 🐨 return <GeneralErrorBoundary /> instead
-	const error = useRouteError()
-	console.error(error)
-
-	return (
-		<div className="container mx-auto flex items-center justify-center p-20 text-h2 text-accent-red">
-			<p>Oh no, something went wrong. Sorry about that.</p>
-		</div>
-	)
+	return <GeneralErrorBoundary />
 }
