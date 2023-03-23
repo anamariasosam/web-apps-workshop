@@ -19,14 +19,16 @@ export default function Kody() {
 	return (
 		<div className="mt-36 mb-48">
 			<h1 className="text-h1">Kody!! :)</h1>
-			<ol className="list-inside list-disc">
-				{links.map(link => (
-					<li key={link.to}>
-						<Link to={link.to}>{link.name}</Link>
-					</li>
-				))}
-			</ol>
 			<Outlet />
+			<ol className="list-inside list-disc">
+				{links.map(link => {
+					return (
+						<li key={link.to}>
+							<Link to={link.to}>{link.name}</Link>
+						</li>
+					)
+				})}
+			</ol>
 		</div>
 	)
 }
