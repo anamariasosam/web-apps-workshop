@@ -7,6 +7,7 @@ import {
 	useMatches,
 } from '@remix-run/react'
 import clsx from 'clsx'
+import invariant from 'tiny-invariant'
 import { getUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import { Button } from '~/utils/forms'
@@ -14,16 +15,19 @@ import { Button } from '~/utils/forms'
 export async function loader({ request, params }: DataFunctionArgs) {
 	// 🐨 use invariant (from the 'tiny-invariant' package) to throw an error if
 	// the username is missing from the params
+	invariant(params.username, 'Missing username')
+
 	const loggedInUserId = await getUserId(request)
 	const user = await prisma.user.findUnique({
 		where: { username: params.username },
 	})
 	// 🐨 if the user does not exist, throw a 404 response
 	// 🦉 we'll handle this error in a later exercise.
+	if (!user) {
+		throw new Response('not found', { status: 404 })
+	}
 
 	return json({
-		// 🦺 See! I told you that you should always listen to TypeScript!
-		// @ts-expect-error 💣 remove this comment line
 		isSelf: user.id === loggedInUserId,
 	})
 }
