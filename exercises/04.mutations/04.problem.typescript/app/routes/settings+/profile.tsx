@@ -1,5 +1,6 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { Form, Link, useLoaderData } from '@remix-run/react'
+import invariant from 'tiny-invariant'
 import { authenticator, requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
 import { Button, Field } from '~/utils/forms'
@@ -27,21 +28,13 @@ export async function action({ request }: DataFunctionArgs) {
 	const formData = await request.formData()
 	const name = formData.get('name')
 	const username = formData.get('username')
-	// 🦉 if the name and username are not strings, then whoever created the form
-	// (us, the developers) did something wrong (like maybe we misspelled the
-	// "name" prop) on the form element. If that's the case, the user can't fix
-	// it anyway, so we'll just throw an error which we'll handle nicely
-	// in an exercise later.
-	// 🐨 Use invariant (from `tiny-invariant`) to throw an error if the name or
-	// username are not strings.
-	// 💰 for example: invariant(typeof sandwich === 'string', 'sandwich must be a string')
+
+	invariant(typeof name === 'string', 'name must be a string')
+	invariant(typeof username === 'string', 'username must be a string')
 
 	const updatedUser = await prisma.user.update({
 		select: { username: true },
 		where: { id: userId },
-		// 💣 remove this comment, because it's now impossible to get here without
-		// name and username being strings.
-		// @ts-expect-error - we'll fix this in the next exercise
 		data: { name, username },
 	})
 

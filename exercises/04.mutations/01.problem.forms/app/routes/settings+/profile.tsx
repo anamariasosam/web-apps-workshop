@@ -1,7 +1,8 @@
 import { json, type DataFunctionArgs } from '@remix-run/node'
-import { Link, useLoaderData } from '@remix-run/react'
+import { Form, Link, useLoaderData } from '@remix-run/react'
 import { authenticator, requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
+import { Button } from '~/utils/forms'
 import { getUserImgSrc } from '~/utils/misc'
 
 export async function loader({ request }: DataFunctionArgs) {
@@ -43,24 +44,25 @@ export default function EditUserProfile() {
 						/>
 					</div>
 				</div>
-				{/*
-					🐨 Create a form using the <Form> component from `@remix-run/react`.
-					It should contain two fields:
-					- name
-					- username
-					and one submit button with the text "Save Changes"
-
-					// 🐨 Make sure to set the "method" prop to "post" on the <Form> component
-					// 🦉 you could also set the "action" to "/settings/profile", but that is the default so you can leave that off.
-
-					// 💰 if you want the inputs to look nice, use the following className on the <input />
-					// className="h-16 w-full rounded-lg border border-night-400 bg-night-700 px-4 text-body-xs caret-white outline-none focus:border-accent-purple disabled:bg-night-400"
-					// 🦉 Don't worry, we've got a reusable component for you to use later... For now, <label> and <input> are fine.
-
-					// 💰 You can use the <Button> component from `~/utils/forms` to make the button look nice
-					// the variant prop should be "primary" and the size prop should be "md-wide"
-					// 🐨 Make sure the button's type prop is "submit"
-				*/}
+				<Form method="post">
+					<label htmlFor="name">Name:</label>
+					<input
+						name="name"
+						id="name"
+						defaultValue={data.user.name ?? ''}
+						className="h-16 w-full rounded-lg border border-night-400 bg-night-700 px-4 text-body-xs caret-white outline-none focus:border-accent-purple disabled:bg-night-400"
+					/>
+					<label htmlFor="username">Username:</label>
+					<input
+						name="username"
+						id="username"
+						defaultValue={data.user.username}
+						className="h-16 w-full rounded-lg border border-night-400 bg-night-700 px-4 text-body-xs caret-white outline-none focus:border-accent-purple disabled:bg-night-400"
+					/>
+					<Button variant="primary" size="md-wide" type="submit">
+						Save Changes
+					</Button>
+				</Form>
 			</div>
 		</div>
 	)

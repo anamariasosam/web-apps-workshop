@@ -2,7 +2,7 @@ import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { Form, Link, useLoaderData } from '@remix-run/react'
 import { authenticator, requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
-import { Button } from '~/utils/forms'
+import { Button, Field } from '~/utils/forms'
 import { getUserImgSrc } from '~/utils/misc'
 
 export async function loader({ request }: DataFunctionArgs) {
@@ -62,33 +62,22 @@ export default function EditUserProfile() {
 				</div>
 				<Form method="post">
 					<div className="grid grid-cols-6 gap-x-10">
-						{/* 🐨 swap this div with a <Field /> component (keep the className prop) which accepts inputProps and labelProps */}
-						{/* 🐨 Make certain the `name` is set in the inputProps */}
-						{/* 💰 To set the label, use labelProps={{children: "Username"}} on the Field component */}
-						{/* 💰 To set the defaultValue, use inputProps={{defaultValue: data.user.username}} */}
-						<div className="col-span-3">
-							{/* 💣 the Field component doesn't take children, instead it takes "inputProps" and "labelProps" delete the label and input here */}
-							<label>Username</label>
-							<input
-								name="username"
-								defaultValue={data.user.username}
-								className="h-16 w-full rounded-lg border border-night-400 bg-night-700 px-4 text-body-xs caret-white outline-none focus:border-accent-purple disabled:bg-night-400"
-							/>
-						</div>
-						{/* 🐨 Replace this div with a Field as well */}
-						<div className="col-span-3">
-							{/* 💣 blow away this label and input */}
-							{/*
-								🦉 this is not accessible, but don't worry,
-								we've got an exercise later to make it that way
-							*/}
-							<label>Name</label>
-							<input
-								name="name"
-								defaultValue={data.user.name ?? ''}
-								className="h-16 w-full rounded-lg border border-night-400 bg-night-700 px-4 text-body-xs caret-white outline-none focus:border-accent-purple disabled:bg-night-400"
-							/>
-						</div>
+						<Field
+							className="col-span-3"
+							labelProps={{ children: 'Username' }}
+							inputProps={{
+								name: 'username',
+								defaultValue: data.user.username,
+							}}
+						/>
+						<Field
+							className="col-span-3"
+							labelProps={{ children: 'Name' }}
+							inputProps={{
+								name: 'name',
+								defaultValue: data.user.name ?? '',
+							}}
+						/>
 					</div>
 
 					<div className="mt-3 flex justify-center">

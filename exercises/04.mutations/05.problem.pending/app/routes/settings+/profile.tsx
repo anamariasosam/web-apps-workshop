@@ -1,5 +1,11 @@
 import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
-import { Form, Link, useLoaderData } from '@remix-run/react'
+import {
+	Form,
+	Link,
+	useFormAction,
+	useLoaderData,
+	useNavigation,
+} from '@remix-run/react'
 import invariant from 'tiny-invariant'
 import { authenticator, requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
@@ -42,11 +48,13 @@ export async function action({ request }: DataFunctionArgs) {
 
 export default function EditUserProfile() {
 	const data = useLoaderData<typeof loader>()
+	const navigation = useNavigation()
+	const formAction = useFormAction()
 
-	// 🐨 determine whether the form is being submitted by checking:
-	// - navigation state (should be 'submitting')
-	// - navigation formAction (should be the formAction you get from useFormAction)
-	// - navigation formMethod (should be 'post')
+	const isSubmitting =
+		navigation.state === 'submitting' &&
+		navigation.formAction === formAction &&
+		navigation.formMethod === 'post'
 
 	return (
 		<div className="container m-auto mt-16 mb-36 max-w-3xl">
@@ -92,9 +100,8 @@ export default function EditUserProfile() {
 							type="submit"
 							size="md-wide"
 							variant="primary"
-							// 🐨 add the disabled prop here when we're in the submitting state
-							// 🐨 add status prop set to "pending" when we're in the submitting state
-							// or "idle" otherwise
+							disabled={isSubmitting}
+							status={isSubmitting ? 'pending' : 'idle'}
 						>
 							Save changes
 						</Button>

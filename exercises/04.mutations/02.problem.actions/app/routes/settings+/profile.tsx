@@ -1,8 +1,8 @@
-import { json, type DataFunctionArgs } from '@remix-run/node'
+import { json, redirect, type DataFunctionArgs } from '@remix-run/node'
 import { Form, Link, useLoaderData } from '@remix-run/react'
 import { authenticator, requireUserId } from '~/utils/auth.server'
 import { prisma } from '~/utils/db.server'
-import { Button } from '~/utils/forms'
+import { Button, Field } from '~/utils/forms'
 import { getUserImgSrc } from '~/utils/misc'
 
 export async function loader({ request }: DataFunctionArgs) {
@@ -22,27 +22,21 @@ export async function loader({ request }: DataFunctionArgs) {
 	return json({ user })
 }
 
-// 🐨 export an action function here
-// 🦺 make sure to use the DataFunctionArgs type from `@remix-run/node`
+export async function action({ request }: DataFunctionArgs) {
+	const userId = await requireUserId(request)
+	const formData = await request.formData()
+	const name = formData.get('name')
+	const username = formData.get('username')
 
-// 🐨 get the userId from the request
-// 💰 (`requireUserId(request)` just like in the loader)
+	const updatedUser = await prisma.user.update({
+		select: { username: true },
+		where: { id: userId },
+		// @ts-expect-error - we'll fix this in the next exercise
+		data: { name, username },
+	})
 
-// 🐨 get the username and name from the request formData
-// 📜 https://mdn.io/request.formData
-
-// 🐨 update the user in the database
-// 💰 this isn't a prisma workshop, so here's how you do that:
-// const updatedUser = await prisma.user.update({
-// 	select: { username: true },
-// 	where: { id: userId },
-// 	// @ts-expect-error 🦺 we'll fix this in the next exercise!
-// 	// It's important to listen to TypeScript!!
-// 	data: { name, username },
-// })
-
-// 🐨 redirect to the user's profile page
-// 💰 (`/users/${updatedUser.username}`)
+	return redirect(`/users/${updatedUser.username}`)
+}
 
 export default function EditUserProfile() {
 	const data = useLoaderData<typeof loader>()
